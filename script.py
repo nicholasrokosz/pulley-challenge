@@ -11,10 +11,6 @@ def fetch_challenge(path):
     json_response = response.json()
     return json_response
 
-def decrypt_path(path, method):
-    method = method
-    return path
-
 def level_one(path):
     str_arr = re.search(r'\[.*?\]', path).group()
     arr = ast.literal_eval(str_arr)
