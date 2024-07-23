@@ -2,6 +2,8 @@ import requests
 import re
 import ast
 import binascii
+import base64
+import msgpack
 
 
 def fetch_challenge(path):
@@ -41,12 +43,23 @@ def level_four(path):
     print(result)
     return 'task_' + result
 
+def level_five(path, messagepack):
+    scrambled = path[5:]
 
+    decoded = base64.b64decode(messagepack)
+    unscramble_map = msgpack.unpackb(decoded)
+
+    unscrambled = [''] * len(scrambled)
+    for i, pos in enumerate(unscramble_map):
+        unscrambled[pos] = scrambled[i]
+
+    result = ''.join(unscrambled)
+    return 'task_' + result
 
 level = 0
 hint_path = "nicholasrokosz@gmail.com"
 
-while level < 6:
+while level < 7:
     # print(level)
     challenge_info = fetch_challenge(hint_path)
     print(challenge_info)
@@ -62,5 +75,9 @@ while level < 6:
         hint_path = level_three(hint_path, n)
     if level == 4:
         hint_path = level_four(hint_path)
+    if level == 5:
+        messagepack = re.search(r':\s+(.*)', challenge_info['encryption_method']).group(1)
+        hint_path = level_five(hint_path, messagepack)
+        # print(level_five(hint_path, messagepack))
 
     level = challenge_info['level'] + 1
