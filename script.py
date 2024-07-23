@@ -23,7 +23,6 @@ def level_one(path):
 
 def level_two(path):
     hex_only_string = re.sub(r'[^0-9a-fA-F]', '', path[5:])
-    # print(hex_only_string)
     return 'task_' + hex_only_string
 
 def level_three(path, n):
@@ -40,7 +39,6 @@ def level_four(path):
     hex_decoded = binascii.unhexlify(str)
     xor_decrypted = xor_decrypt(hex_decoded, "secret")
     result = binascii.hexlify(xor_decrypted).decode()
-    print(result)
     return 'task_' + result
 
 def level_five(path, messagepack):
@@ -60,7 +58,6 @@ level = 0
 hint_path = "nicholasrokosz@gmail.com"
 
 while level < 7:
-    # print(level)
     challenge_info = fetch_challenge(hint_path)
     print(challenge_info)
 
@@ -78,6 +75,5 @@ while level < 7:
     if level == 5:
         messagepack = re.search(r':\s+(.*)', challenge_info['encryption_method']).group(1)
         hint_path = level_five(hint_path, messagepack)
-        # print(level_five(hint_path, messagepack))
 
     level = challenge_info['level'] + 1
