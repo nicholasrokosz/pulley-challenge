@@ -1,7 +1,7 @@
 import requests
 import re
-import json
 import ast
+import binascii
 
 
 def fetch_challenge(path):
@@ -15,7 +15,7 @@ def decrypt_path(path, method):
 
 def level_one(path):
     str_arr = re.search(r'\[.*?\]', path).group()
-    arr = eval(str_arr)
+    arr = ast.literal_eval(str_arr)
     str = ''.join(list(map(lambda n: chr(n), arr)))
     return 'task_' + str
 
@@ -29,10 +29,24 @@ def level_three(path, n):
     rotated_str = str[-n:] + str[:-n]
     return 'task_' + rotated_str
 
+def xor_decrypt(data, key):
+    key_bytes = key.encode()
+    return bytes([data[i] ^ key_bytes[i % len(key_bytes)] for i in range(len(data))])
+
+def level_four(path):
+    str = path[5:]
+    hex_decoded = binascii.unhexlify(str)
+    xor_decrypted = xor_decrypt(hex_decoded, "secret")
+    result = binascii.hexlify(xor_decrypted).decode()
+    print(result)
+    return 'task_' + result
+
+
+
 level = 0
 hint_path = "nicholasrokosz@gmail.com"
 
-while level < 5:
+while level < 6:
     # print(level)
     challenge_info = fetch_challenge(hint_path)
     print(challenge_info)
@@ -43,20 +57,10 @@ while level < 5:
         hint_path = level_one(hint_path)
     if level == 2:
         hint_path = level_two(hint_path)
-        # level_two(hint_path)
     if level == 3:
         n = int(re.search(r'\d+', challenge_info['encryption_method']).group())
-        # print(n)
         hint_path = level_three(hint_path, n)
+    if level == 4:
+        hint_path = level_four(hint_path)
 
     level = challenge_info['level'] + 1
-
-# response = requests.get(URL + "/nicholasrokosz@gmail.com")
-# json = response.json()
-# hint_path = json['encrypted_path']
-# next_response = requests.get(URL + hint_path)
-# hint_path = re.search(r'/\S+', json['hint']).group()
-
-# print(f"Response content: {response.text}")
-# print(f"Next response content: {next_response.text}")
-# print(hint_path)
